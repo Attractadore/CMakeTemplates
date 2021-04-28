@@ -2,6 +2,13 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+option(CXX_SANITIZE_ADDRESS "Enable AddressSanitizer")
+option(CXX_SANITIZE_LEAK "Enable LeakSanitizer")
+option(CXX_SANITIZE_UNDEFINED "Enable UndefinedBehaviorSanitizer" ON)
+option(CXX_SANITIZE_THREAD "Enable ThreadSanitizer")
+option(CXX_SANITIZE_MEMORY "Enable MemorySanitizer")
+option(CXX_STATICXX_ANALYSIS "Enable built-in compiler static analyzer")
+
 if (${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU")
     set(GNU_CXX_WARNINGS "-Wall -Wextra -Wshadow -Wrestrict -Wconversion -Wsign-conversion -Wpedantic -Wold-style-cast")
 

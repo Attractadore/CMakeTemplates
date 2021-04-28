@@ -2,6 +2,13 @@ set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED TRUE)
 set(CMAKE_C_EXTENSIONS OFF)
 
+option(C_SANITIZE_ADDRESS "Enable AddressSanitizer")
+option(C_SANITIZE_LEAK "Enable LeakSanitizer")
+option(C_SANITIZE_UNDEFINED "Enable UndefinedBehaviorSanitizer" ON)
+option(C_SANITIZE_THREAD "Enable ThreadSanitizer")
+option(C_SANITIZE_MEMORY "Enable MemorySanitizer")
+option(C_STATIC_ANALYSIS "Enable built-in compiler static analyzer")
+
 if (${CMAKE_C_COMPILER_ID} STREQUAL "GNU")
     set(GNU_C_WARNINGS "-Wall -Wextra -Wshadow -Wrestrict -Wconversion -Wsign-conversion -Wpedantic -Wjump-misses-init")
 
