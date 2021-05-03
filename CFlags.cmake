@@ -12,7 +12,7 @@ option(C_STATIC_ANALYSIS "Enable built-in compiler static analyzer")
 if (${CMAKE_C_COMPILER_ID} STREQUAL "GNU")
     set(GNU_C_WARNINGS "-Wall -Wextra -Wshadow -Wrestrict -Wconversion -Wsign-conversion -Wpedantic -Wjump-misses-init")
 
-    set(GNU_C_FLAGS "-lm")
+    set(GNU_C_FLAGS "-Werror=implicit-function-declaration")
 
     set(GNU_C_FLAGS_DEBUG "${GNU_C_FLAGS} -g")
 
@@ -60,7 +60,7 @@ endif()
 if (${CMAKE_C_COMPILER_ID} STREQUAL "Clang")
     set(CLANG_C_WARNINGS "-Wall -Wextra -Wshadow -Wconversion -Wsign-conversion -Wpedantic -Wno-unused-command-line-argument")
 
-    set(CLANG_C_FLAGS "-lm")
+    set(CLANG_C_FLAGS "-Werror=implicit-function-declaration")
 
     set(CLANG_C_FLAGS_DEBUG "${CLANG_C_FLAGS} -g")
 
