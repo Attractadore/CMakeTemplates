@@ -18,28 +18,28 @@ if (${CMAKE_C_COMPILER_ID} STREQUAL "GNU")
 
     if (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
         if (C_SANITIZE_ADDRESS)
-            if (C_SANITIZE_THREAD) 
+            if (C_SANITIZE_THREAD)
                 message(FATAL_ERROR "ASan and TSan cannot be used together")
             endif()
-    
+
             message(STATUS "Enable ASan for GCC")
             set(GNU_C_FLAGS_DEBUG "${GNU_C_FLAGS_DEBUG} -fsanitize=address")
         endif()
-    
+
         if (C_SANITIZE_LEAK)
-            if (C_SANITIZE_THREAD) 
+            if (C_SANITIZE_THREAD)
                 message(FATAL_ERROR "LSan and TSan cannot be used together")
             endif()
-    
+
             message(STATUS "Enable LSan for GCC")
             set(GNU_C_FLAGS_DEBUG "${GNU_C_FLAGS_DEBUG} -fsanitize=leak")
         endif()
-    
+
         if (C_SANITIZE_UNDEFINED)
             message(STATUS "Enable UbSan for GCC")
             set(GNU_C_FLAGS_DEBUG "${GNU_C_FLAGS_DEBUG} -fsanitize=undefined")
         endif()
-    
+
         if (C_SANITIZE_THREAD)
             message(STATUS "Enable TSan for GCC")
             set(GNU_C_FLAGS_DEBUG "${GNU_C_FLAGS_DEBUG} -fsanitize=thread")
@@ -66,36 +66,36 @@ if (${CMAKE_C_COMPILER_ID} STREQUAL "Clang")
 
     if (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
         if (C_SANITIZE_ADDRESS)
-            if (C_SANITIZE_THREAD) 
+            if (C_SANITIZE_THREAD)
                 message(FATAL_ERROR "ASan and TSan cannot be used together")
             endif()
-            if (C_SANITIZE_MEMORY) 
+            if (C_SANITIZE_MEMORY)
                 message(FATAL_ERROR "ASan and MSan cannot be used together")
             endif()
-    
+
             message(STATUS "Enable ASan for Clang")
             set(CLANG_C_FLAGS_DEBUG "${CLANG_C_FLAGS_DEBUG} -fsanitize=address")
         endif()
-    
+
         if (C_SANITIZE_LEAK)
-            if (C_SANITIZE_THREAD) 
+            if (C_SANITIZE_THREAD)
                 message(FATAL_ERROR "LSan and TSan cannot be used together")
             endif()
-            if (C_SANITIZE_MEMORY) 
+            if (C_SANITIZE_MEMORY)
                 message(FATAL_ERROR "LSan and MSan cannot be used together")
             endif()
-    
+
             message(STATUS "Enable LSan for Clang")
             set(CLANG_C_FLAGS_DEBUG "${CLANG_C_FLAGS_DEBUG} -fsanitize=leak")
         endif()
-    
+
         if (C_SANITIZE_UNDEFINED)
             message(STATUS "Enable UbSan for Clang")
             set(CLANG_C_FLAGS_DEBUG "${CLANG_C_FLAGS_DEBUG} -fsanitize=undefined")
         endif()
-    
+
         if (C_SANITIZE_THREAD)
-            if (C_SANITIZE_MEMORY) 
+            if (C_SANITIZE_MEMORY)
                 message(FATAL_ERROR "TSan and MSan cannot be used together")
             endif()
 
