@@ -9,7 +9,7 @@ option(C_SANITIZE_MEMORY "Enable MemorySanitizer")
 option(C_STATIC_ANALYSIS "Enable built-in compiler static analyzer")
 
 if (${CMAKE_C_COMPILER_ID} STREQUAL "GNU")
-    set(GNU_C_WARNINGS "-Wall -Wextra -Wshadow -Wrestrict -Wconversion -Wsign-conversion -Wjump-misses-init")
+    set(GNU_C_WARNINGS "-Wall -Wextra -Wshadow -Wrestrict -Wconversion -Wsign-conversion")
 
     set(GNU_C_FLAGS "-Werror=implicit-function-declaration -Werror=pedantic")
 
