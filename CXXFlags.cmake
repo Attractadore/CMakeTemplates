@@ -1,4 +1,3 @@
-set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
@@ -10,9 +9,9 @@ option(CXX_SANITIZE_MEMORY "Enable MemorySanitizer")
 option(CXX_STATICXX_ANALYSIS "Enable built-in compiler static analyzer")
 
 if(${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU")
-    set(GNU_CXX_WARNINGS "-Wall -Wextra -Wshadow -Wrestrict -Wconversion -Wsign-conversion -Wpedantic -Wold-style-cast")
+    set(GNU_CXX_WARNINGS "-Wall -Wextra -Wshadow -Wrestrict -Wconversion -Wsign-conversion -Wold-style-cast")
 
-    set(GNU_CXX_FLAGS "")
+    set(GNU_CXX_FLAGS "-Werror=pedantic")
 
     set(GNU_CXX_FLAGS_DEBUG "${GNU_CXX_FLAGS} -g")
 
@@ -51,16 +50,16 @@ if(${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU")
         set(GNU_CXX_FLAGS_DEBUG "${GNU_CXX_FLAGS_DEBUG} -fanalyzer")
     endif()
 
-    set(GNU_CXX_FLAGS_RELEASE "${GNU_CXX_FLAGS} -O3 -DNDEBUG")
+    set(GNU_CXX_FLAGS_RELEASE "${GNU_CXX_FLAGS} -march=x86-64-v2 -O3 -DNDEBUG")
 
     string(APPEND CMAKE_CXX_FLAGS_DEBUG " ${GNU_CXX_WARNINGS} ${GNU_CXX_FLAGS_DEBUG}")
     string(APPEND CMAKE_CXX_FLAGS_RELEASE " ${GNU_CXX_WARNINGS} ${GNU_CXX_FLAGS_RELEASE}")
 endif()
 
 if(${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang")
-    set(CLANG_CXX_WARNINGS "-Wall -Wextra -Wshadow -Wconversion -Wsign-conversion -Wpedantic -Wold-style-cast -Wno-unused-command-line-argument")
+    set(CLANG_CXX_WARNINGS "-Wall -Wextra -Wshadow -Wconversion -Wsign-conversion -Wold-style-cast -Wno-unused-command-line-argument")
 
-    set(CLANG_CXX_FLAGS "")
+    set(CLANG_CXX_FLAGS "-Werror=pedantic")
 
     set(CLANG_CXX_FLAGS_DEBUG "${CLANG_CXX_FLAGS} -g")
 
@@ -114,7 +113,7 @@ if(${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang")
         set(CLANG_CXX_FLAGS_DEBUG "${CLANG_CXX_FLAGS_DEBUG} -analyzer")
     endif()
 
-    set(CLANG_CXX_FLAGS_RELEASE "${CLANG_CXX_FLAGS} -O3 -DNDEBUG")
+    set(CLANG_CXX_FLAGS_RELEASE "${CLANG_CXX_FLAGS} -march=x86-64-v2 -O3 -DNDEBUG")
 
     string(APPEND CMAKE_CXX_FLAGS_DEBUG " ${CLANG_CXX_WARNINGS} ${CLANG_CXX_FLAGS_DEBUG}")
     string(APPEND CMAKE_CXX_FLAGS_RELEASE " ${CLANG_CXX_WARNINGS} ${CLANG_CXX_FLAGS_RELEASE}")

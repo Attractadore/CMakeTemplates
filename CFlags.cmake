@@ -1,4 +1,3 @@
-set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED TRUE)
 set(CMAKE_C_EXTENSIONS OFF)
 
@@ -10,9 +9,9 @@ option(C_SANITIZE_MEMORY "Enable MemorySanitizer")
 option(C_STATIC_ANALYSIS "Enable built-in compiler static analyzer")
 
 if (${CMAKE_C_COMPILER_ID} STREQUAL "GNU")
-    set(GNU_C_WARNINGS "-Wall -Wextra -Wshadow -Wrestrict -Wconversion -Wsign-conversion -Wpedantic -Wjump-misses-init")
+    set(GNU_C_WARNINGS "-Wall -Wextra -Wshadow -Wrestrict -Wconversion -Wsign-conversion -Wjump-misses-init")
 
-    set(GNU_C_FLAGS "-Werror=implicit-function-declaration")
+    set(GNU_C_FLAGS "-Werror=implicit-function-declaration -Werror=pedantic")
 
     set(GNU_C_FLAGS_DEBUG "${GNU_C_FLAGS} -g")
 
@@ -51,16 +50,16 @@ if (${CMAKE_C_COMPILER_ID} STREQUAL "GNU")
         set(GNU_C_FLAGS_DEBUG "${GNU_C_FLAGS_DEBUG} -fanalyzer")
     endif()
 
-    set(GNU_C_FLAGS_RELEASE "${GNU_C_FLAGS} -O3 -DNDEBUG")
+    set(GNU_C_FLAGS_RELEASE "${GNU_C_FLAGS} -march=x86-64-v2 -O3 -DNDEBUG")
 
     string(APPEND CMAKE_C_FLAGS_DEBUG " ${GNU_C_WARNINGS} ${GNU_C_FLAGS_DEBUG}")
     string(APPEND CMAKE_C_FLAGS_RELEASE " ${GNU_C_WARNINGS} ${GNU_C_FLAGS_RELEASE}")
 endif()
 
 if (${CMAKE_C_COMPILER_ID} STREQUAL "Clang")
-    set(CLANG_C_WARNINGS "-Wall -Wextra -Wshadow -Wconversion -Wsign-conversion -Wpedantic -Wno-unused-command-line-argument")
+    set(CLANG_C_WARNINGS "-Wall -Wextra -Wshadow -Wconversion -Wsign-conversion -Wno-unused-command-line-argument")
 
-    set(CLANG_C_FLAGS "-Werror=implicit-function-declaration")
+    set(CLANG_C_FLAGS "-Werror=implicit-function-declaration -Werror=pedantic")
 
     set(CLANG_C_FLAGS_DEBUG "${CLANG_C_FLAGS} -g")
 
@@ -114,7 +113,7 @@ if (${CMAKE_C_COMPILER_ID} STREQUAL "Clang")
         set(CLANG_C_FLAGS_DEBUG "${CLANG_C_FLAGS_DEBUG} -analyzer")
     endif()
 
-    set(CLANG_C_FLAGS_RELEASE "${CLANG_C_FLAGS} -O3 -DNDEBUG")
+    set(CLANG_C_FLAGS_RELEASE "${CLANG_C_FLAGS} -march=x86-64-v2 -O3 -DNDEBUG")
 
     string(APPEND CMAKE_C_FLAGS_DEBUG " ${CLANG_C_WARNINGS} ${CLANG_C_FLAGS_DEBUG}")
     string(APPEND CMAKE_C_FLAGS_RELEASE " ${CLANG_C_WARNINGS} ${CLANG_C_FLAGS_RELEASE}")
