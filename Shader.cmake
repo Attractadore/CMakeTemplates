@@ -1,4 +1,6 @@
 cmake_minimum_required(VERSION 3.3)
+
+enable_language(C)
 function(add_shader SHADER_TARGET SHADER_SOURCE)
     # TODO:
     # * add dependency generation for includes
