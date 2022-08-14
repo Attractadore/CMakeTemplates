@@ -105,9 +105,9 @@ function(add_shader SHADER_TARGET SHADER_SOURCE)
         add_custom_target(${SHADER_TARGET} DEPENDS ${SHADER_BINARY_FILE})
     else()
         set(SHADER_H "${SHADER_TARGET}.h")
-        set(SHADER_BIT "${SHADER_TARGET}.bit")
+        set(SHADER_INC "${SHADER_TARGET}.inc")
         set(SHADER_H_FILE "${CMAKE_CURRENT_BINARY_DIR}/${SHADER_H}")
-        set(SHADER_BIT_FILE "${CMAKE_CURRENT_BINARY_DIR}/${SHADER_BIT}")
+        set(SHADER_INC_FILE "${CMAKE_CURRENT_BINARY_DIR}/${SHADER_INC}")
 
         set(SHADER_H_SOURCE
             "#pragma once\n"
@@ -118,7 +118,7 @@ function(add_shader SHADER_TARGET SHADER_SOURCE)
             "#endif\n"
             "\n"
             "static const unsigned ${SHADER_TARGET}[] = {\n"
-            "#include \"${SHADER_BIT}\"\n"
+            "#include \"${SHADER_INC}\"\n"
             "}\;\n"
             "\n"
             "#ifdef __cplusplus\n"
@@ -129,17 +129,17 @@ function(add_shader SHADER_TARGET SHADER_SOURCE)
         file(WRITE ${SHADER_H_FILE} ${SHADER_H_SOURCE})
 
         add_custom_command(
-            OUTPUT ${SHADER_BIT_FILE}
+            OUTPUT ${SHADER_INC_FILE}
             DEPENDS ${SHADER_SOURCE_FILE}
-            COMMAND ${GLSLC} ${GLSLC_OPTIONS} ${SHADER_SOURCE_FILE} -o ${SHADER_BIT_FILE}
+            COMMAND ${GLSLC} ${GLSLC_OPTIONS} ${SHADER_SOURCE_FILE} -o ${SHADER_INC_FILE}
             COMMAND_EXPAND_LISTS
-            DEPFILE ${SHADER_BIT}.d
+            DEPFILE ${SHADER_INC}.d
         )
-        set(SHADER_BIT_FILE_TARGET ${SHADER_TARGET}BitFile)
-        add_custom_target(${SHADER_BIT_FILE_TARGET} DEPENDS ${SHADER_BIT_FILE})
+        set(SHADER_INC_FILE_TARGET ${SHADER_TARGET}Inc)
+        add_custom_target(${SHADER_INC_FILE_TARGET} DEPENDS ${SHADER_INC_FILE})
 
         add_library(${SHADER_TARGET} INTERFACE ${SHADER_H_FILE})
         target_include_directories(${SHADER_TARGET} INTERFACE ${CMAKE_CURRENT_BINARY_DIR})
-        add_dependencies(${SHADER_TARGET} ${SHADER_BIT_FILE_TARGET})
+        add_dependencies(${SHADER_TARGET} ${SHADER_INC_FILE_TARGET})
     endif()
 endfunction()
