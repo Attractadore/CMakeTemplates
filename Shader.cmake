@@ -90,6 +90,7 @@ function(add_shader SHADER_TARGET SHADER_SOURCE)
         list(APPEND GLSLC_OPTIONS "-mfmt=num")
     endif()
     list(APPEND GLSLC_OPTIONS "-MD")
+    list(APPEND GLSLC_OPTIONS "-Os")
 
     if (NOT OPTION_EMBEDDED)
         set(SHADER_BINARY "${SHADER_SOURCE}.spv")
