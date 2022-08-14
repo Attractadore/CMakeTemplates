@@ -3,7 +3,6 @@ cmake_minimum_required(VERSION 3.3)
 enable_language(C)
 function(add_shader SHADER_TARGET SHADER_SOURCE)
     # TODO:
-    # * add dependency generation for includes
     # * add options for compile env
     # * add support for different build types
     # * add support for hlsl
@@ -40,6 +39,7 @@ function(add_shader SHADER_TARGET SHADER_SOURCE)
         "VULKAN10"
         "VULKAN11"
         "VULKAN12"
+        "VULKAN13"
         "VULKAN"
         "OPENGL45"
         "OPENGL"
@@ -49,6 +49,7 @@ function(add_shader SHADER_TARGET SHADER_SOURCE)
         "vulkan1.0"
         "vulkan1.1"
         "vulkan1.2"
+        "vulkan1.3"
         "vulkan"
         "opengl4.5"
         "opengl"
@@ -63,7 +64,7 @@ function(add_shader SHADER_TARGET SHADER_SOURCE)
         )
     else()
         list(GET GLSLC_TARGET_ENVS ${ENV_IDX} GLSLC_TARGET_ENV)
-        list(APPEND GLSLC_OPTIONS "--target-env=${GLSLC_TARGET_ENV}") 
+        list(APPEND GLSLC_OPTIONS "--target-env=${GLSLC_TARGET_ENV}")
     endif()
 
     set(ALLOWED_EXTENSIONS
@@ -76,18 +77,6 @@ function(add_shader SHADER_TARGET SHADER_SOURCE)
         ".mesh"
         ".task"
     )
-    
-    if (${TARGET_ENV} STREQUAL "VULKAN12")
-        set(RT_ALLOWED_EXTENSIONS
-            ".rgen"
-            ".rint"
-            ".rahit"
-            ".rchit"
-            ".rmiss"
-            ".rcall"
-        )
-        list(APPEND ALLOWED_EXTENSIONS ${RT_ALLOWED_EXTENSIONS})
-    endif()
 
     get_filename_component(SHADER_EXT ${SHADER_SOURCE} LAST_EXT)
     if(NOT ${SHADER_EXT} IN_LIST ALLOWED_EXTENSIONS)
@@ -97,6 +86,10 @@ function(add_shader SHADER_TARGET SHADER_SOURCE)
                         "The following extensions are supported: ${PRINT_EXTENSIONS}"
         )
     endif()
+    if (OPTION_EMBEDDED)
+        list(APPEND GLSLC_OPTIONS "-mfmt=num")
+    endif()
+    list(APPEND GLSLC_OPTIONS "-MD")
 
     if (NOT OPTION_EMBEDDED)
         set(SHADER_BINARY "${SHADER_SOURCE}.spv")
@@ -106,85 +99,46 @@ function(add_shader SHADER_TARGET SHADER_SOURCE)
             DEPENDS ${SHADER_SOURCE_FILE}
             COMMAND ${GLSLC} ${GLSLC_OPTIONS} ${SHADER_SOURCE_FILE} -o ${SHADER_BINARY_FILE}
             COMMAND_EXPAND_LISTS
+            DEPFILE ${SHADER_BINARY}.d
         )
-        add_custom_target(
-            ${SHADER_TARGET}
-            DEPENDS ${SHADER_BINARY_FILE}
-        )
+        add_custom_target(${SHADER_TARGET} DEPENDS ${SHADER_BINARY_FILE})
     else()
         set(SHADER_H "${SHADER_TARGET}.h")
-        set(SHADER_C "${SHADER_TARGET}.c")
+        set(SHADER_BIT "${SHADER_TARGET}.bit")
         set(SHADER_H_FILE "${CMAKE_CURRENT_BINARY_DIR}/${SHADER_H}")
-        set(SHADER_C_FILE "${CMAKE_CURRENT_BINARY_DIR}/${SHADER_C}")
-    
-        list(APPEND GLSLC_OPTIONS "-mfmt=num")
+        set(SHADER_BIT_FILE "${CMAKE_CURRENT_BINARY_DIR}/${SHADER_BIT}")
 
-        set(PAYLOAD_NAME ${SHADER_TARGET})
-        set(PAYLOAD_SIZE_NAME "${SHADER_TARGET}Size")
         set(SHADER_H_SOURCE
             "#pragma once\n"
-            "#ifdef __cplusplus\n"
-            "#include <cstddef>\n"
-            "#else\n"
             "#include <stddef.h>\n"
-            "#endif\n"
             "\n"
             "#ifdef __cplusplus\n"
             "extern \"C\" {\n"
             "#endif\n"
-            "extern const int ${PAYLOAD_NAME}[]\;\n"
-            "extern const size_t ${PAYLOAD_SIZE_NAME}\;\n"
+            "\n"
+            "static const unsigned ${SHADER_TARGET}[] = {\n"
+            "#include \"${SHADER_BIT}\"\n"
+            "}\;\n"
+            "\n"
             "#ifdef __cplusplus\n"
             "}\n"
             "#endif"
         )
-        set(SHADER_C_TOP_SOURCE
-            "#include \"${SHADER_H}\"\n"
-            "\n"
-            "const int ${PAYLOAD_NAME}[] = {\n"
-        )
-        set(SHADER_C_BOTTOM_SOURCE
-            "}\;\n"
-            "\n"
-            "const size_t ${PAYLOAD_SIZE_NAME} = sizeof(${PAYLOAD_NAME})\;"
-        )
-        
-        set(SHADER_H_SOURCE_NAME "${SHADER_TARGET}HSource.h")
-        set(SHADER_C_TOP_SOURCE_NAME "${SHADER_TARGET}CTopSource.c")
-        set(SHADER_BIT_NAME "${SHADER_TARGET}.bit")
-        set(SHADER_C_BOTTOM_SOURCE_NAME "${SHADER_TARGET}CBottomSource.c")
 
-        set(SHADER_H_SOURCE_FILE "${CMAKE_CURRENT_BINARY_DIR}/${SHADER_H_SOURCE_NAME}")
-        set(SHADER_C_TOP_SOURCE_FILE "${CMAKE_CURRENT_BINARY_DIR}/${SHADER_C_TOP_SOURCE_NAME}")
-        set(SHADER_BIT_FILE "${CMAKE_CURRENT_BINARY_DIR}/${SHADER_BIT_NAME}")
-        set(SHADER_C_BOTTOM_SOURCE_FILE "${CMAKE_CURRENT_BINARY_DIR}/${SHADER_C_BOTTOM_SOURCE_NAME}")
+        file(WRITE ${SHADER_H_FILE} ${SHADER_H_SOURCE})
 
-        file(WRITE ${SHADER_H_SOURCE_FILE} ${SHADER_H_SOURCE})
-        file(WRITE ${SHADER_C_TOP_SOURCE_FILE} ${SHADER_C_TOP_SOURCE})
-        file(WRITE ${SHADER_C_BOTTOM_SOURCE_FILE} ${SHADER_C_BOTTOM_SOURCE})
-
-        add_custom_command(
-            OUTPUT ${SHADER_H_FILE}
-            DEPENDS ${SHADER_H_SOURCE_FILE}
-            COMMAND ${CMAKE_COMMAND} -E cat ${SHADER_H_SOURCE_FILE} > ${SHADER_H_FILE} 
-            COMMAND_EXPAND_LISTS
-        )
         add_custom_command(
             OUTPUT ${SHADER_BIT_FILE}
             DEPENDS ${SHADER_SOURCE_FILE}
             COMMAND ${GLSLC} ${GLSLC_OPTIONS} ${SHADER_SOURCE_FILE} -o ${SHADER_BIT_FILE}
             COMMAND_EXPAND_LISTS
+            DEPFILE ${SHADER_BIT}.d
         )
-        add_custom_command(
-            OUTPUT ${SHADER_C_FILE}
-            DEPENDS ${SHADER_C_TOP_SOURCE_FILE} ${SHADER_BIT_FILE} ${SHADER_C_BOTTOM_SOURCE_FILE}
-            COMMAND ${CMAKE_COMMAND} -E cat ${SHADER_C_TOP_SOURCE_FILE} ${SHADER_BIT_FILE} ${SHADER_C_BOTTOM_SOURCE_FILE} > ${SHADER_C_FILE} 
-            COMMAND_EXPAND_LISTS
-        )
-     
-        add_library(
-            ${SHADER_TARGET} ${SHADER_H_FILE} ${SHADER_C_FILE}
-        )
+        set(SHADER_BIT_FILE_TARGET ${SHADER_TARGET}BitFile)
+        add_custom_target(${SHADER_BIT_FILE_TARGET} DEPENDS ${SHADER_BIT_FILE})
+
+        add_library(${SHADER_TARGET} INTERFACE ${SHADER_H_FILE})
         target_include_directories(${SHADER_TARGET} INTERFACE ${CMAKE_CURRENT_BINARY_DIR})
+        add_dependencies(${SHADER_TARGET} ${SHADER_BIT_FILE_TARGET})
     endif()
 endfunction()
